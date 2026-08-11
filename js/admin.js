@@ -3,9 +3,11 @@
  * LÓGICA DEL PANEL DE ADMINISTRACIÓN (js/admin.js)
  * Controla la autenticación de usuario (Login/Logout) mediante Firebase Auth,
  * y las operaciones CRUD (crear y eliminar productos) en Firestore.
+ * NUEVO: Permite actualizar la cotización del dólar (config/general).
  * ==========================================================================
  */
 
+// Importamos la instancia de la app y las funciones desde firebase.js
 import { 
   db, 
   auth, 
@@ -19,19 +21,29 @@ import {
   onAuthStateChanged 
 } from "./firebase.js";
 
+// Importamos setDoc directamente desde el CDN (para guardar la cotización)
+import { setDoc } from "firebase/firestore";
+
 // ==========================================================================
 // REFERENCIAS A ELEMENTOS DEL DOM (HTML)
 // ==========================================================================
+// Vista de Login
 const seccionLogin = document.getElementById("seccion-login");
 const formLogin = document.getElementById("form-login");
 const inputEmail = document.getElementById("login-email");
 const inputPassword = document.getElementById("login-password");
 const loginErrorMsg = document.getElementById("login-error-msg");
 
+// Vista de Panel Admin
 const seccionAdmin = document.getElementById("seccion-admin");
 const spanUsuarioEmail = document.getElementById("usuario-email");
 const btnCerrarSesion = document.getElementById("btn-cerrar-sesion");
 
+// NUEVO: Cotización del dólar
+const inputDolar = document.getElementById("config-dolar");
+const btnGuardarDolar = document.getElementById("btn-guardar-dolar");
+
+// Formulario de Producto
 const formProducto = document.getElementById("form-producto");
 const inputNombre = document.getElementById("prod-nombre");
 const inputColor = document.getElementById("prod-color");
@@ -45,29 +57,35 @@ const checkDestacado = document.getElementById("prod-destacado");
 const adminErrorMsg = document.getElementById("admin-error-msg");
 const adminSuccessMsg = document.getElementById("admin-success-msg");
 
+// Lista / Tabla de Productos
 const tablaProductosBody = document.getElementById("tabla-productos-body");
 
 
 // ==========================================================================
 // CONTROL DE SESIÓN (AUTENTICACIÓN)
 // ==========================================================================
+// Escuchamos el estado de autenticación en tiempo real
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // Usuario Autenticado -> Mostrar Panel
+    // Usuario Autenticado -> Ocultamos Login y mostramos el Panel Admin
     if (seccionLogin) seccionLogin.style.display = "none";
     if (seccionAdmin) seccionAdmin.style.display = "block";
     if (spanUsuarioEmail) spanUsuarioEmail.textContent = user.email;
 
+    // Iniciar la escucha en vivo de la lista de productos
     escucharProductosAdmin();
+
+    // NUEVO: Iniciar la escucha de la cotización actual
+    escucharCotizacionAdmin();
   } else {
-    // Usuario No Autenticado -> Mostrar Login
+    // Usuario No Autenticado -> Mostramos Formulario de Login y ocultamos Panel
     if (seccionLogin) seccionLogin.style.display = "block";
     if (seccionAdmin) seccionAdmin.style.display = "none";
     if (spanUsuarioEmail) spanUsuarioEmail.textContent = "";
   }
 });
 
-// Evento: Login
+// Evento: Iniciar Sesión (Login)
 if (formLogin) {
   formLogin.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -76,7 +94,13 @@ if (formLogin) {
     const email = inputEmail.value.trim();
     const password = inputPassword.value.trim();
 
+    if (!email || !password) {
+      mostrarErrorLogin("Por favor completa el email y la contraseña.");
+      return;
+    }
+
     try {
+      // Iniciar sesión en Firebase Auth
       await signInWithEmailAndPassword(auth, email, password);
       formLogin.reset();
     } catch (error) {
@@ -87,6 +111,8 @@ if (formLogin) {
         mensajeError = "Email o contraseña incorrectos.";
       } else if (error.code === "auth/user-not-found") {
         mensajeError = "No existe una cuenta registrada con este email.";
+      } else if (error.code === "auth/too-many-requests") {
+        mensajeError = "Demasiados intentos fallidos. Intenta más tarde.";
       }
 
       mostrarErrorLogin(mensajeError);
@@ -94,7 +120,7 @@ if (formLogin) {
   });
 }
 
-// Evento: Logout
+// Evento: Cerrar Sesión (Logout)
 if (btnCerrarSesion) {
   btnCerrarSesion.addEventListener("click", async () => {
     try {
@@ -108,13 +134,58 @@ if (btnCerrarSesion) {
 
 
 // ==========================================================================
-// CREACIÓN DE PRODUCTOS (addDoc en Firestore)
+// NUEVO: GESTIÓN DE LA COTIZACIÓN DEL DÓLAR (config/general)
+// ==========================================================================
+
+/**
+ * Lee el documento config/general y muestra el valor actual en el input
+ */
+function escucharCotizacionAdmin() {
+  if (!inputDolar) return;
+
+  onSnapshot(doc(db, "config", "general"), (snap) => {
+    if (snap.exists() && typeof snap.data().dolar === "number") {
+      inputDolar.value = snap.data().dolar;
+    }
+  }, (error) => {
+    console.error("Error al leer la cotización actual:", error);
+  });
+}
+
+/**
+ * Guarda la nueva cotización en Firestore (la web pública se actualiza sola)
+ */
+if (btnGuardarDolar) {
+  btnGuardarDolar.addEventListener("click", async () => {
+    ocultarMensajes();
+
+    const valor = Number(inputDolar.value);
+
+    if (!valor || valor <= 0) {
+      mostrarErrorAdmin("Ingresa una cotización válida, mayor a 0.");
+      return;
+    }
+
+    try {
+      await setDoc(doc(db, "config", "general"), { dolar: valor }, { merge: true });
+      mostrarExitoAdmin("¡Cotización actualizada! El banner de la web pública ya muestra el nuevo valor.");
+    } catch (error) {
+      console.error("Error al guardar la cotización:", error);
+      mostrarErrorAdmin("No se pudo guardar la cotización: " + error.message);
+    }
+  });
+}
+
+
+// ==========================================================================
+// CREACIÓN DE PRODUCTOS (FIRESTORE addDoc)
 // ==========================================================================
 if (formProducto) {
   formProducto.addEventListener("submit", async (e) => {
     e.preventDefault();
     ocultarMensajes();
 
+    // Recopilamos y formateamos los campos del formulario
     const nuevoProducto = {
       nombre: inputNombre.value.trim(),
       color: inputColor.value.trim(),
@@ -127,8 +198,16 @@ if (formProducto) {
       destacado: checkDestacado.checked
     };
 
+    // Validación simple
+    if (!nuevoProducto.nombre || !nuevoProducto.color) {
+      mostrarErrorAdmin("Por favor completa el nombre y el color del producto.");
+      return;
+    }
+
     try {
+      // Guardar documento en la colección "productos" de Firestore
       await addDoc(collection(db, "productos"), nuevoProducto);
+
       mostrarExitoAdmin(`¡Producto "${nuevoProducto.nombre}" creado exitosamente!`);
       formProducto.reset();
       selectCategoria.value = "nuevos";
@@ -142,13 +221,14 @@ if (formProducto) {
 
 
 // ==========================================================================
-// LISTADO Y ELIMINACIÓN DE PRODUCTOS (deleteDoc en Firestore)
+// LISTADO Y ELIMINACIÓN DE PRODUCTOS (FIRESTORE deleteDoc)
 // ==========================================================================
 let desuscribirListener = null;
 
 function escucharProductosAdmin() {
   if (!tablaProductosBody) return;
 
+  // Si ya había una escucha activa, la limpiamos primero
   if (desuscribirListener) desuscribirListener();
 
   const productosRef = collection(db, "productos");
@@ -201,13 +281,13 @@ function escucharProductosAdmin() {
 
     tablaProductosBody.innerHTML = filasHTML;
 
-    // Asignar eventos de eliminación
+    // Asignar eventos a los botones de eliminación recién creados
     document.querySelectorAll(".btn-eliminar-prod").forEach((boton) => {
       boton.addEventListener("click", async (e) => {
         const idProd = e.target.dataset.id;
         const nombreProd = e.target.dataset.nombre || "este producto";
 
-        if (confirm(`¿Estás seguro de que deseas eliminar "${nombreProd}"?`)) {
+        if (confirm(`¿Estás seguro de que deseas eliminar "${nombreProd}"? Esta acción no se puede deshacer.`)) {
           try {
             await deleteDoc(doc(db, "productos", idProd));
             mostrarExitoAdmin(`Producto "${nombreProd}" eliminado correctamente.`);
@@ -225,7 +305,9 @@ function escucharProductosAdmin() {
 }
 
 
-// Mensajes
+// ==========================================================================
+// FUNCIONES DE MENSAJES Y ALERTAS
+// ==========================================================================
 function mostrarErrorLogin(msg) {
   if (loginErrorMsg) {
     loginErrorMsg.textContent = msg;

@@ -4,6 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de Administración - Catálogo de Celulares</title>
+  
+  <!-- Proteccion contra errores de asignacion de fetch en entornos con getter unico -->
+  <script>
+    (function() {
+      try {
+        var _fetch = window.fetch;
+        if (typeof _fetch === 'function') {
+          Object.defineProperty(window, 'fetch', {
+            get: function() {
+              return _fetch;
+            },
+            set: function(fn) {
+              _fetch = fn;
+            },
+            configurable: true,
+            enumerable: true
+          });
+        }
+      } catch (e) {
+        // Ignorar si el entorno no permite redefinicion
+      }
+    })();
+  </script>
+
+  <!-- ============================================================ -->
+  <!-- IMPORT MAP (CORRECCIÓN AGREGADA)                              -->
+  <!-- Traduce los nombres de módulos (firebase/*, three) a sus CDN. -->
+  <!-- Debe ir ANTES de cualquier <script type="module">.            -->
+  <!-- ============================================================ -->
+  <script type="importmap">
+  {
+    "imports": {
+      "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+      "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js",
+      "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
   <!-- Hoja de estilos principal -->
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -66,7 +107,7 @@
         <div>
           <h2>Panel de Gestión</h2>
           <p style="color: #64748b; font-size: 0.9rem;">
-            Sesión activa como: <strong id="usuario-email" style="color: #0f172a;"></strong>
+            Sesión activa como: <strong id="usuario-email" style="color: #38bdf8;"></strong>
           </p>
         </div>
         <button id="btn-cerrar-sesion" class="btn-danger">Cerrar Sesión</button>
@@ -75,6 +116,28 @@
       <!-- Alertas de Estado -->
       <div id="admin-error-msg" class="alert alert-danger" style="display: none;"></div>
       <div id="admin-success-msg" class="alert alert-success" style="display: none;"></div>
+
+            <!-- TARJETA: COTIZACIÓN DEL DÓLAR (editable por el dueño) -->
+      <div class="admin-card" style="margin-bottom: 1.5rem;">
+        <h3 class="admin-card-title">💵 Cotización del Dólar</h3>
+        <p style="font-size: 0.9rem; opacity: 0.75; margin-bottom: 1rem;">
+          Este valor se muestra en el banner de la web pública y se actualiza en tiempo real para todos los visitantes.
+        </p>
+        <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+          <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+            <label for="config-dolar" class="form-label">Cotización actual (ARS por 1 USD):</label>
+            <input
+              type="number"
+              id="config-dolar"
+              class="form-input"
+              placeholder="ej: 1350"
+              min="0"
+              step="any"
+            />
+          </div>
+          <button id="btn-guardar-dolar" class="btn-primary" type="button">Actualizar cotización</button>
+        </div>
+      </div>
 
       <div class="admin-grid">
 

@@ -1,13 +1,26 @@
 /**
  * ==========================================================================
  * INICIALIZACIÓN DE FIREBASE (js/firebase.js)
- * Carga los módulos oficiales de Firebase v10 desde la CDN oficial de Google (gstatic).
+ * Carga los módulos oficiales de Firebase v10.
  * Exporta la base de datos (db), autenticación (auth) y funciones auxiliares.
  * ==========================================================================
  */
 
+// Asegurar que window.fetch tenga un setter writable en el entorno
+try {
+  if (typeof window !== 'undefined' && typeof window.fetch === 'function') {
+    let _fetch = window.fetch;
+    Object.defineProperty(window, 'fetch', {
+      get: () => _fetch,
+      set: (fn) => { _fetch = fn; },
+      configurable: true,
+      enumerable: true
+    });
+  }
+} catch (e) {}
+
 // Importamos la función para inicializar la aplicación de Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp } from "firebase/app";
 
 // Importamos los servicios y funciones de Firestore (Base de datos NoSQL)
 import { 
@@ -19,7 +32,7 @@ import {
   doc, 
   query, 
   orderBy 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+} from "firebase/firestore";
 
 // Importamos los servicios de Autenticación (Firebase Auth)
 import { 
@@ -27,7 +40,7 @@ import {
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+} from "firebase/auth";
 
 // 1. Configuración del proyecto de Firebase (Credenciales públicas del proyecto)
 const firebaseConfig = {
