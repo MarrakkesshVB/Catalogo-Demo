@@ -1503,18 +1503,18 @@ body.dark-theme {
 
 /* --- BANNER DÓLAR EN MÓVIL --- */
 @media (max-width: 640px) {
-  .dolar-bar {
+  .glass-bar {
     flex-wrap: wrap;
     justify-content: center;
     row-gap: 0.35rem;
-    max-width: 92%;
+    max-width: 100%;
     border-radius: 1rem;
     text-align: center;
   }
 
-  .dolar-bar p {
+  .glass-bar p {
     white-space: normal;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     line-height: 1.4;
   }
 }
