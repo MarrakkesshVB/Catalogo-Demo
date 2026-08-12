@@ -99,6 +99,22 @@ body.dark-theme {
   background: radial-gradient(circle, rgba(170, 211, 242, 0.12) 0%, transparent 70%);
 }
 
+.glow-heart-left {
+  top: -150px;
+  left: -150px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(230, 57, 70, 0.18) 0%, transparent 70%);
+}
+
+.glow-heart-right {
+  bottom: -200px;
+  right: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(230, 57, 70, 0.14) 0%, transparent 70%);
+}
+
 /* --- Efecto Vidrio (Glassmorphism) --- */
 .glass-card {
   background: var(--bg-card);

@@ -50,6 +50,11 @@
 </head>
 <body>
 
+  <!-- CANVAS 3D FIJO DE FONDO (PARTÍCULAS CORAZÓN) -->
+  <canvas id="webgl-canvas"></canvas>
+  <div class="ambient-glow glow-heart-left"></div>
+  <div class="ambient-glow glow-heart-right"></div>
+
   <!-- ENCABEZADO SIMPLE -->
   <header class="site-header">
     <div class="header-container">
@@ -335,6 +340,7 @@
   </main>
 
   <!-- Lógica JavaScript del Panel Admin (Usa módulo ES6) -->
-  <script type="module" src="js/admin.js"></script>
+    <script type="module" src="js/admin.js"></script>
+  <script type="module" src="js/admin-fx.js"></script>
 </body>
 </html>
