@@ -204,7 +204,7 @@ function init3DExperience() {
   phoneGroup.add(flashMesh);
 
   // 4. Sistema de Partículas Ambientales (Polvo estelar brillante)
-  const particleCount = isMobile ? 180 : 380;
+  const particleCount = isMobile ? 60 : 380;
   const particlesGeo = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
   const scales = new Float32Array(particleCount);
@@ -329,9 +329,20 @@ function init3DExperience() {
   calculateScroll();
 
   const clock = new THREE.Clock();
+  let isCanvasVisible = true;
+
+  // Pausa el render 3D cuando el canvas sale de pantalla (ahorra GPU en móvil)
+  const observerCanvas = new IntersectionObserver(
+    (entries) => {
+      isCanvasVisible = entries[0].isIntersecting;
+    },
+    { threshold: 0 }
+  );
+  observerCanvas.observe(canvas);
 
   function animate() {
     requestAnimationFrame(animate);
+    if (!isCanvasVisible) return; // ← corte temprano: no renderiza si no se ve
 
     const elapsedTime = clock.getElapsedTime();
 
