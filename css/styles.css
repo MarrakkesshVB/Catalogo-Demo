@@ -903,6 +903,104 @@ body.dark-theme {
   line-height: 1.6;
 }
 
+/* --- TESTIMONIOS REALES DE GOOGLE --- */
+.testimonials-section {
+  padding: 0 1.5rem 6rem 1.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.testimonials-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.75rem;
+  margin-bottom: 1.75rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.testimonials-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.rating-number {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--text-main);
+}
+
+.rating-stars {
+  color: #fbbc05;
+  letter-spacing: 2px;
+}
+
+.rating-count {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.testimonial-card {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.testimonial-top {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.testimonial-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #ffffff;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.testimonial-stars {
+  color: #fbbc05;
+  font-size: 0.85rem;
+}
+
+.testimonial-stars span {
+  color: var(--text-subtle);
+  margin-left: 0.4rem;
+}
+
+.testimonial-card p {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
 /* --- SECCIÓN CTA FINAL --- */
 .cta-section {
   padding: 4rem 1.5rem 8rem 1.5rem;
