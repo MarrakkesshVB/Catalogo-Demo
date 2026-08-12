@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. Escuchar la cotización del dólar desde Firestore (config/general)
   escucharCotizacionDolar();
     escucharTestimonios();
+      escucharRatingGoogle();
 
   // 4. Configurar evento de escritura en el buscador
   if (inputBuscador) {
@@ -126,6 +127,22 @@ function escucharCotizacionDolar() {
 /**
  * Escucha los testimonios cargados desde el panel y muestra los 3 más recientes
  */
+/**
+ * Lee el rating de Google editable desde el panel
+ */
+function escucharRatingGoogle() {
+  const numero = document.getElementById("rating-numero");
+  const cantidad = document.getElementById("rating-cantidad");
+  if (!numero && !cantidad) return;
+
+  onSnapshot(doc(db, "config", "rating"), (snap) => {
+    if (!snap.exists()) return;
+    const data = snap.data();
+    if (data.numero && numero) numero.textContent = data.numero;
+    if (data.opiniones && cantidad) cantidad.textContent = data.opiniones + " opiniones";
+  });
+}
+
 function escucharTestimonios() {
   if (!gridTestimonios) return;
 

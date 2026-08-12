@@ -930,6 +930,11 @@ body.dark-theme {
   font-weight: 800;
   color: var(--text-main);
 }
+.testimonials-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
 
 .rating-summary {
   display: flex;
@@ -951,6 +956,23 @@ body.dark-theme {
 .rating-count {
   color: var(--text-muted);
   font-size: 0.9rem;
+}
+
+.btn-review-google {
+  background: #1a73e8;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(26, 115, 232, 0.35);
+}
+
+.btn-review-google:hover {
+  background: #1765cc;
+  transform: translateY(-2px);
 }
 
 .testimonials-grid {

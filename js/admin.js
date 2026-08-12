@@ -417,3 +417,33 @@ function escucharTestimoniosAdmin() {
     });
   });
 }
+// ==========================================================================
+// RATING DE GOOGLE EDITABLE
+// ==========================================================================
+const formRating = document.getElementById("form-rating");
+const inputRatingNumero = document.getElementById("input-rating-numero");
+const inputRatingOpiniones = document.getElementById("input-rating-opiniones");
+
+if (formRating) {
+  onSnapshot(doc(db, "config", "rating"), (snap) => {
+    if (snap.exists()) {
+      const data = snap.data();
+      inputRatingNumero.value = data.numero || "";
+      inputRatingOpiniones.value = data.opiniones || "";
+    }
+  });
+
+  formRating.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    ocultarMensajes();
+    try {
+      await setDoc(doc(db, "config", "rating"), {
+        numero: inputRatingNumero.value.trim() || "5.0",
+        opiniones: inputRatingOpiniones.value.trim() || "417"
+      });
+      mostrarExitoAdmin("Rating actualizado en la web.");
+    } catch (error) {
+      mostrarErrorAdmin("No se pudo guardar el rating: " + error.message);
+    }
+  });
+}
