@@ -22,7 +22,7 @@ import {
 } from "./firebase.js";
 
 // Importamos setDoc directamente desde el CDN (para guardar la cotización)
-import { setDoc } from "firebase/firestore";
+import { setDoc, updateDoc } from "firebase/firestore";
 
 // ==========================================================================
 // REFERENCIAS A ELEMENTOS DEL DOM (HTML)
@@ -59,6 +59,12 @@ const adminSuccessMsg = document.getElementById("admin-success-msg");
 
 // Lista / Tabla de Productos
 const tablaProductosBody = document.getElementById("tabla-productos-body");
+
+// Edición de productos
+const btnGuardarProducto = document.getElementById("btn-guardar-producto");
+const btnCancelarEdicion = document.getElementById("btn-cancelar-edicion");
+const productosCache = {};
+let idEditando = null;
 
 // Testimonios
 const formTestimonio = document.getElementById("form-testimonio");
@@ -213,10 +219,16 @@ if (formProducto) {
     }
 
     try {
-      // Guardar documento en la colección "productos" de Firestore
-      await addDoc(collection(db, "productos"), nuevoProducto);
-
-      mostrarExitoAdmin(`¡Producto "${nuevoProducto.nombre}" creado exitosamente!`);
+      if (idEditando) {
+        // MODO EDICIÓN: actualizar el documento existente
+        await updateDoc(doc(db, "productos", idEditando), nuevoProducto);
+        mostrarExitoAdmin(`¡Producto "${nuevoProducto.nombre}" actualizado exitosamente!`);
+        salirModoEdicion();
+      } else {
+        // MODO CREACIÓN: guardar documento nuevo
+        await addDoc(collection(db, "productos"), nuevoProducto);
+        mostrarExitoAdmin(`¡Producto "${nuevoProducto.nombre}" creado exitosamente!`);
+      }
       formProducto.reset();
       selectCategoria.value = "nuevos";
       selectEstado.value = "Nuevo";
@@ -257,6 +269,7 @@ function escucharProductosAdmin() {
     snapshot.forEach((docSnap) => {
       const prod = docSnap.data();
       const id = docSnap.id;
+      productosCache[id] = prod;
 
       const urlFoto = (prod.fotoURL && prod.fotoURL.trim() !== "") 
         ? prod.fotoURL 
@@ -278,16 +291,22 @@ function escucharProductosAdmin() {
             <strong>USD $${(prod.precioUSD || 0).toLocaleString("es-AR")}</strong><br/>
             <small style="color: #64748b;">$${(prod.precioPesos || 0).toLocaleString("es-AR")} ARS</small>
           </td>
-          <td>
-            <button class="btn-danger btn-eliminar-prod" data-id="${id}" data-nombre="${prod.nombre}">
-              Eliminar
-            </button>
+          <td style="white-space: nowrap;">
+            <button class="btn-editar-prod" data-id="${id}">✏️ Editar</button>
+            <button class="btn-danger btn-eliminar-prod" data-id="${id}" data-nombre="${prod.nombre}">Eliminar</button>
           </td>
         </tr>
       `;
     });
 
     tablaProductosBody.innerHTML = filasHTML;
+
+    // Asignar eventos a los botones de edición recién creados
+    document.querySelectorAll(".btn-editar-prod").forEach((boton) => {
+      boton.addEventListener("click", (e) => {
+        entrarModoEdicion(e.target.dataset.id);
+      });
+    });
 
     // Asignar eventos a los botones de eliminación recién creados
     document.querySelectorAll(".btn-eliminar-prod").forEach((boton) => {
@@ -445,5 +464,47 @@ if (formRating) {
     } catch (error) {
       mostrarErrorAdmin("No se pudo guardar el rating: " + error.message);
     }
+  });
+}
+
+// ==========================================================================
+// MODO EDICIÓN DE PRODUCTOS
+// ==========================================================================
+function entrarModoEdicion(id) {
+  const prod = productosCache[id];
+  if (!prod) return;
+
+  idEditando = id;
+
+  inputNombre.value = prod.nombre || "";
+  inputColor.value = prod.color || "";
+  selectCategoria.value = prod.categoria || "nuevos";
+  selectEstado.value = prod.estado || "Nuevo";
+  inputPrecioUSD.value = prod.precioUSD || "";
+  inputPrecioPesos.value = prod.precioPesos || "";
+  inputPrecioTransf.value = prod.precioTransferencia || "";
+  inputFotoURL.value = prod.fotoURL || "";
+  checkDestacado.checked = !!prod.destacado;
+
+  if (btnGuardarProducto) btnGuardarProducto.textContent = "💾 Guardar cambios";
+  if (btnCancelarEdicion) btnCancelarEdicion.style.display = "block";
+
+  // Sube hasta el formulario para que se vea la carga de datos
+  formProducto.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function salirModoEdicion() {
+  idEditando = null;
+  if (btnGuardarProducto) btnGuardarProducto.textContent = "Guardar Producto";
+  if (btnCancelarEdicion) btnCancelarEdicion.style.display = "none";
+}
+
+if (btnCancelarEdicion) {
+  btnCancelarEdicion.addEventListener("click", () => {
+    salirModoEdicion();
+    formProducto.reset();
+    selectCategoria.value = "nuevos";
+    selectEstado.value = "Nuevo";
+    ocultarMensajes();
   });
 }

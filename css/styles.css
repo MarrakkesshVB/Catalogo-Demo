@@ -1294,6 +1294,24 @@ body.dark-theme {
   color: #ffffff;
 }
 
+.btn-editar-prod {
+  padding: 0.6rem 1rem;
+  background: rgba(170, 211, 242, 0.15);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(170, 211, 242, 0.4);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 0.4rem;
+}
+
+.btn-editar-prod:hover {
+  background: var(--accent-cyan);
+  color: #000000;
+}
+
 .admin-header-bar {
   display: flex;
   justify-content: space-between;
