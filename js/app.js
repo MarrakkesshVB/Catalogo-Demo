@@ -14,7 +14,7 @@ import { db, collection, onSnapshot, query, orderBy, doc } from "./firebase.js";
 // CONSTANTES EDITABLES (Preservadas según requerimientos)
 // ==========================================================================
 // Número de WhatsApp al cual llegarán las consultas (incluir código de país sin el signo +, ej: 549...)
-const WHATSAPP_NUMERO = "5491123456789"; 
+const WHATSAPP_NUMERO = "5491122531942";
 
 // Cotización de RESPALDO: solo se usa si aún no existe el documento config/general en Firestore.
 // El valor real lo define el dueño desde el Panel Admin.
@@ -123,7 +123,7 @@ function escucharCotizacionDolar() {
  */
 function configurarBotonFlotanteWhatsapp() {
   if (floatWhatsapp) {
-    const mensajeGeneral = encodeURIComponent("¡Hola! Estuve viendo el catálogo web y quisiera hacer una consulta.");
+    const mensajeGeneral = encodeURIComponent("¡Hola Florencia Celulares! Estuve viendo el catálogo web y quisiera hacer una consulta.");
     floatWhatsapp.href = `https://wa.me/${WHATSAPP_NUMERO}?text=${mensajeGeneral}`;
   }
 }
@@ -237,7 +237,7 @@ function renderizarGrid(listaProductos) {
       : `<span></span>`;
 
     // Mensaje pre-cargado para WhatsApp
-    const mensajeWA = encodeURIComponent(`Hola! Me interesa el ${prod.nombre}`);
+    const mensajeWA = encodeURIComponent(`Hola Florencia Celulares! Me interesa el ${prod.nombre}`);
     const enlaceWA = `https://wa.me/${WHATSAPP_NUMERO}?text=${mensajeWA}`;
 
     return `
