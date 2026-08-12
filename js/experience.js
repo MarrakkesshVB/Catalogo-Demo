@@ -41,13 +41,13 @@ function init3DExperience() {
   const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
     alpha: true,
-    antialias: true,
+    antialias: !isMobile,
     powerPreference: "high-performance"
   });
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   // Limitar pixelRatio para máximo rendimiento en pantallas Retina/Mobile
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
 
@@ -444,7 +444,7 @@ function init3DExperience() {
     camera.updateProjectionMatrix();
 
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, width < 768 ? 1.5 : 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, width < 768 ? 1 : 2));
   });
 }
 
