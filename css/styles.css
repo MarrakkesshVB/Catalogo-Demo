@@ -1196,6 +1196,12 @@ body.dark-theme {
   max-width: 860px;
   margin: 0 auto;
 }
+
+#seccion-admin {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
 .login-wrapper {
   max-width: 440px;
   margin: 4rem auto;
@@ -1301,8 +1307,16 @@ body.dark-theme {
 
 .admin-grid {
   display: grid;
-  grid-template-columns: 1fr 1.5fr;
+  grid-template-columns: 1fr;
   gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-grid .admin-card:first-child {
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .admin-card {
@@ -1353,6 +1367,19 @@ body.dark-theme {
   object-fit: contain;
   background: rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-sm);
+}
+
+.admin-table img {
+  width: 44px !important;
+  height: 44px !important;
+  object-fit: contain !important;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+}
+
+.admin-table th,
+.admin-table td {
+  vertical-align: middle;
 }
 
 .alert {
