@@ -52,7 +52,7 @@ function init3DExperience() {
   renderer.toneMappingExposure = 1.2;
 
   // 2. Luces Cinematográficas
-  const ambientLight = new THREE.AmbientLight(0x1a233a, 2.0);
+  const ambientLight = new THREE.AmbientLight(0x2a3a55, 2.0);
   scene.add(ambientLight);
 
   // Luz frontal/superior
@@ -61,17 +61,17 @@ function init3DExperience() {
   scene.add(keyLight);
 
   // Luz de borde cian (Rim Light Izquierda)
-  const cyanRim = new THREE.PointLight(0x00f2fe, 4.0, 20);
+  const cyanRim = new THREE.PointLight(0xaad3f2, 4.0, 20);
   cyanRim.position.set(-5, -2, 4);
   scene.add(cyanRim);
 
   // Luz de borde azul eléctrico (Rim Light Derecha)
-  const blueRim = new THREE.PointLight(0x2563eb, 4.0, 20);
+  const blueRim = new THREE.PointLight(0x6aa9dd, 4.0, 20);
   blueRim.position.set(5, 2, -3);
   scene.add(blueRim);
 
   // Luz púrpura suave de relleno
-  const purpleRim = new THREE.PointLight(0x8b5cf6, 2.0, 15);
+  const purpleRim = new THREE.PointLight(0xe63946, 2.0, 15);
   purpleRim.position.set(0, -6, 2);
   scene.add(purpleRim);
 
@@ -81,9 +81,9 @@ function init3DExperience() {
 
   // Materiales de alta calidad PBR
   const titaniumMaterial = new THREE.MeshStandardMaterial({
-    color: 0x181e2b,
-    metalness: 0.95,
-    roughness: 0.18,
+    color: 0xaad3f2,
+    metalness: 0.7,
+    roughness: 0.3,
     envMapIntensity: 1.5
   });
 
@@ -92,7 +92,7 @@ function init3DExperience() {
     metalness: 0.1,
     roughness: 0.05,
     transmission: 0.1,
-    opacity: 0.98,
+    opacity: 0.25,
     transparent: true,
     clearcoat: 1.0,
     clearcoatRoughness: 0.05
@@ -106,7 +106,7 @@ function init3DExperience() {
   });
 
   const cameraBumpMaterial = new THREE.MeshStandardMaterial({
-    color: 0x111622,
+    color: 0x7fb8e6,
     metalness: 0.9,
     roughness: 0.25
   });
@@ -131,28 +131,22 @@ function init3DExperience() {
 
   // Fondo OLED Cyber Dark
   const grad = ctx.createLinearGradient(0, 0, 512, 1024);
-  grad.addColorStop(0, "#030712");
-  grad.addColorStop(0.4, "#0f172a");
-  grad.addColorStop(0.7, "#0369a1");
-  grad.addColorStop(1, "#0284c7");
+  grad.addColorStop(0, "#000000");
+  grad.addColorStop(0.4, "#050505");
+  grad.addColorStop(0.7, "#0a0a0a");
+  grad.addColorStop(1, "#111111");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 512, 1024);
 
-  // Brillo central / Wallpaper
-  ctx.fillStyle = "rgba(0, 242, 254, 0.15)";
-  ctx.beginPath();
-  ctx.arc(256, 350, 180, 0, Math.PI * 2);
-  ctx.fill();
-
   // Texto / Marca en Pantalla
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 38px 'Helvetica Neue', Arial, sans-serif";
+  ctx.fillStyle = "#f2c94c";
+  ctx.font = "bold 46px 'Helvetica Neue', Arial, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText("MOBI STORE", 256, 480);
+  ctx.fillText("★ 5.0 EN GOOGLE", 256, 500);
 
-  ctx.fillStyle = "#00f2fe";
+  ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
   ctx.font = "600 20px 'Helvetica Neue', Arial, sans-serif";
-  ctx.fillText("PRO EDITION 2026", 256, 520);
+  ctx.fillText("FLORENCIA CELULARES", 256, 545);
 
   const screenTexture = new THREE.CanvasTexture(screenCanvas);
   const screenMaterial = new THREE.MeshBasicMaterial({
@@ -161,12 +155,12 @@ function init3DExperience() {
   });
 
   const screenMesh = new THREE.Mesh(screenGeometry, screenMaterial);
-  screenMesh.position.z = (phoneDepth / 2) + 0.002;
+  screenMesh.position.z = 0.145;
   phoneGroup.add(screenMesh);
 
   // Cristal de Pantalla Superior
   const screenOverlay = new THREE.Mesh(screenGeometry, screenGlassMaterial);
-  screenOverlay.position.z = (phoneDepth / 2) + 0.003;
+  screenOverlay.position.z = 0.148;
   phoneGroup.add(screenOverlay);
 
   // Módulo de Cámara Trasera (Isla)
@@ -230,8 +224,8 @@ function init3DExperience() {
   particleCanvas.height = 64;
   const pCtx = particleCanvas.getContext("2d");
   const pGrad = pCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
-  pGrad.addColorStop(0, "rgba(0, 242, 254, 1)");
-  pGrad.addColorStop(0.5, "rgba(59, 130, 246, 0.5)");
+  pGrad.addColorStop(0, "rgba(170, 211, 242, 1)");
+  pGrad.addColorStop(0.5, "rgba(106, 169, 221, 0.5)");
   pGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
   pCtx.fillStyle = pGrad;
   pCtx.fillRect(0, 0, 64, 64);
@@ -264,7 +258,7 @@ function init3DExperience() {
   nodeGeo.setAttribute("position", new THREE.BufferAttribute(nodePositions, 3));
 
   const nodeMat = new THREE.PointsMaterial({
-    color: 0x00f2fe,
+    color: 0xaad3f2,
     size: 0.08,
     transparent: true,
     opacity: 0, // Se activa en la escena de IA
@@ -276,7 +270,7 @@ function init3DExperience() {
 
   // Lineas de conexion inter-nodo
   const lineMat = new THREE.LineBasicMaterial({
-    color: 0x00f2fe,
+    color: 0xaad3f2,
     transparent: true,
     opacity: 0,
     blending: THREE.AdditiveBlending

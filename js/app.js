@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function renderizarBannerDolar() {
   if (bannerDolarTexto) {
     const dolarFormateado = dolarActual.toLocaleString("es-AR");
-    bannerDolarTexto.innerHTML = `Cotización de referencia: <strong>1 USD = $${dolarFormateado} ARS</strong> | Pagos en USD y Pesos`;
+    bannerDolarTexto.innerHTML = `Cotización de referencia: <strong class="dolar-valor">1 USD = $${dolarFormateado} ARS</strong> | Pagos en USD y Pesos`;
   }
 }
 

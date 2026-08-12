@@ -281,6 +281,11 @@ body.dark-theme {
   text-transform: uppercase;
 }
 
+.dolar-valor {
+  color: var(--accent-cyan);
+  text-shadow: 0 0 12px rgba(170, 211, 242, 0.45);
+}
+
 /* --- Contenedor Principal --- */
 .main-content {
   position: relative;
