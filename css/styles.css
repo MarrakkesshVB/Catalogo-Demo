@@ -1540,20 +1540,15 @@ body.dark-theme {
 
 /* --- AJUSTE DE SOLAPE DEL BANNER EN MÓVIL --- */
 @media (max-width: 768px) {
+  .site-header {
+    background: #07090e;
+  }
+
   .dolar-banner-wrapper {
-    top: 100px;
+    top: 120px;
   }
 
   .main-content {
-    padding-top: 200px;
-  }
-}
-@media (max-width: 768px) {
-  .dolar-banner-wrapper {
-    top: 78px;
-  }
-
-  .main-content {
-    padding-top: 175px;
+    padding-top: 220px;
   }
 }
