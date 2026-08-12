@@ -16,9 +16,9 @@
   --accent-heart: #e63946;
   --accent-wa: #25d366;
   --accent-wa-hover: #1eaa53;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-subtle: #64748b;
+  --text-main: #ffffff;
+  --text-muted: #d3dce6;
+  --text-subtle: #98a6b8;
   --border-glass: rgba(255, 255, 255, 0.08);
   --border-glass-bright: rgba(170, 211, 242, 0.25);
   --shadow-glow: 0 10px 30px -10px rgba(170, 211, 242, 0.25);
