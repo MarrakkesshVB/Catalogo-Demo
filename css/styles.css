@@ -1500,3 +1500,21 @@ body.dark-theme {
     height: 30px;
   }
 }
+
+/* --- BANNER DÓLAR EN MÓVIL --- */
+@media (max-width: 640px) {
+  .dolar-bar {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 0.35rem;
+    max-width: 92%;
+    border-radius: 1rem;
+    text-align: center;
+  }
+
+  .dolar-bar p {
+    white-space: normal;
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+}
