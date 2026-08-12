@@ -1192,6 +1192,10 @@ body.dark-theme {
 }
 
 /* --- ADAPTACIÓN ESTILOS PANEL ADMIN (admin.html) --- */
+.admin-utility-stack {
+  max-width: 860px;
+  margin: 0 auto;
+}
 .login-wrapper {
   max-width: 440px;
   margin: 4rem auto;
