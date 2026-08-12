@@ -1537,3 +1537,14 @@ body.dark-theme {
     background: rgba(15, 21, 34, 0.92);
   }
 }
+
+/* --- AJUSTE DE SOLAPE DEL BANNER EN MÓVIL --- */
+@media (max-width: 768px) {
+  .dolar-banner-wrapper {
+    top: 78px;
+  }
+
+  .main-content {
+    padding-top: 175px;
+  }
+}
