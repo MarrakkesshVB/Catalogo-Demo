@@ -60,6 +60,13 @@ const adminSuccessMsg = document.getElementById("admin-success-msg");
 // Lista / Tabla de Productos
 const tablaProductosBody = document.getElementById("tabla-productos-body");
 
+// Testimonios
+const formTestimonio = document.getElementById("form-testimonio");
+const inputTestiNombre = document.getElementById("testi-nombre");
+const inputTestiTexto = document.getElementById("testi-texto");
+const inputTestiHace = document.getElementById("testi-hace");
+const listaTestimonios = document.getElementById("lista-testimonios");
+
 
 // ==========================================================================
 // CONTROL DE SESIÓN (AUTENTICACIÓN)
@@ -77,6 +84,7 @@ onAuthStateChanged(auth, (user) => {
 
     // NUEVO: Iniciar la escucha de la cotización actual
     escucharCotizacionAdmin();
+        escucharTestimoniosAdmin();
   } else {
     // Usuario No Autenticado -> Mostramos Formulario de Login y ocultamos Panel
     if (seccionLogin) seccionLogin.style.display = "block";
@@ -336,4 +344,76 @@ function ocultarMensajes() {
   if (loginErrorMsg) loginErrorMsg.style.display = "none";
   if (adminErrorMsg) adminErrorMsg.style.display = "none";
   if (adminSuccessMsg) adminSuccessMsg.style.display = "none";
+}
+
+// ==========================================================================
+// TESTIMONIOS: PUBLICAR Y ELIMINAR (FIRESTORE)
+// ==========================================================================
+if (formTestimonio) {
+  formTestimonio.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    ocultarMensajes();
+
+    const nombre = inputTestiNombre.value.trim();
+    const texto = inputTestiTexto.value.trim();
+
+    if (!nombre || !texto) {
+      mostrarErrorAdmin("Completa el nombre y la opinión del testimonio.");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "testimonios"), {
+        nombre: nombre,
+        texto: texto,
+        hace: inputTestiHace.value.trim() || "hace unos días",
+        createdAt: Date.now()
+      });
+      mostrarExitoAdmin("¡Testimonio publicado en la web!");
+      formTestimonio.reset();
+    } catch (error) {
+      console.error("Error al guardar testimonio:", error);
+      mostrarErrorAdmin("No se pudo guardar el testimonio: " + error.message);
+    }
+  });
+}
+
+function escucharTestimoniosAdmin() {
+  if (!listaTestimonios) return;
+
+  onSnapshot(collection(db, "testimonios"), (snap) => {
+    if (snap.empty) {
+      listaTestimonios.innerHTML = "<p style='color:#64748b; font-size:0.85rem;'>Aún no hay testimonios cargados: la web muestra los 3 de ejemplo.</p>";
+      return;
+    }
+
+    const lista = [];
+    snap.forEach((d) => lista.push({ id: d.id, ...d.data() }));
+    lista.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    listaTestimonios.innerHTML = lista.map((t) => `
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:0.6rem 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+        <div>
+          <strong style="font-size:0.9rem;">${t.nombre}</strong>
+          <p style="color:#94a3b8; font-size:0.8rem; margin:0;">${t.texto}</p>
+        </div>
+        <button class="btn-danger btn-eliminar-testi" data-id="${t.id}" data-nombre="${t.nombre}">Eliminar</button>
+      </div>
+    `).join("");
+
+    document.querySelectorAll(".btn-eliminar-testi").forEach((boton) => {
+      boton.addEventListener("click", async (e) => {
+        const id = e.target.dataset.id;
+        const nombre = e.target.dataset.nombre;
+        if (confirm(`¿Eliminar el testimonio de "${nombre}"?`)) {
+          try {
+            await deleteDoc(doc(db, "testimonios", id));
+            mostrarExitoAdmin("Testimonio eliminado.");
+          } catch (error) {
+            mostrarErrorAdmin("No se pudo eliminar: " + error.message);
+          }
+        }
+      });
+    });
+  });
 }

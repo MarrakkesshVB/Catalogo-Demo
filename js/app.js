@@ -41,6 +41,7 @@ const inputBuscador = document.getElementById("input-buscador");
 const contenedorPestañas = document.getElementById("contenedor-pestanas");
 const bannerDolarTexto = document.getElementById("banner-dolar-texto");
 const floatWhatsapp = document.getElementById("float-whatsapp");
+const gridTestimonios = document.getElementById("grid-testimonios");
 
 
 // ==========================================================================
@@ -56,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 3. Escuchar la cotización del dólar desde Firestore (config/general)
   escucharCotizacionDolar();
+    escucharTestimonios();
 
   // 4. Configurar evento de escritura en el buscador
   if (inputBuscador) {
@@ -121,6 +123,37 @@ function escucharCotizacionDolar() {
 /**
  * Configura el enlace predeterminado del botón flotante de WhatsApp
  */
+/**
+ * Escucha los testimonios cargados desde el panel y muestra los 3 más recientes
+ */
+function escucharTestimonios() {
+  if (!gridTestimonios) return;
+
+  onSnapshot(collection(db, "testimonios"), (snap) => {
+    if (snap.empty) return; // mantiene los 3 de ejemplo del HTML
+
+    const lista = [];
+    snap.forEach((d) => lista.push({ id: d.id, ...d.data() }));
+    lista.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    const colores = ["#ea4335", "#4285f4", "#34a853", "#fbbc05", "#9c27b0"];
+
+    gridTestimonios.innerHTML = lista.slice(0, 3).map((t, i) => `
+      <div class="testimonial-card glass-card scroll-reveal revealed">
+        <div class="testimonial-top">
+          <div class="testimonial-avatar" style="background: ${colores[i % colores.length]};">${(t.nombre || "?").charAt(0).toUpperCase()}</div>
+          <div>
+            <strong>${t.nombre}</strong>
+            <div class="testimonial-stars">★★★★★ <span>${t.hace || ""}</span></div>
+          </div>
+        </div>
+        <p>${t.texto}</p>
+      </div>
+    `).join("");
+  }, (error) => {
+    console.error("Error al leer testimonios:", error);
+  });
+}
 function configurarBotonFlotanteWhatsapp() {
   if (floatWhatsapp) {
     const mensajeGeneral = encodeURIComponent("¡Hola Florencia Celulares! Estuve viendo el catálogo web y quisiera hacer una consulta.");
