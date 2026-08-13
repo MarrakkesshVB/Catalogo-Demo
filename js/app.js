@@ -49,13 +49,40 @@ const gridTestimonios = document.getElementById("grid-testimonios");
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
   // 1. Mostrar la cotización del dólar en el banner superior y configurar el botón flotante
-  renderizarBannerDolar();
+  /**
+ * Actualiza el banner superior con el valor actual del dólar (en vivo desde Firestore o API)
+ */
+function renderizarBannerDolar() {
+  if (bannerDolarTexto) {
+    const dolarFormateado = dolarActual.toLocaleString("es-AR");
+    const horaActual = new Date().toLocaleTimeString("es-AR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    bannerDolarTexto.innerHTML = `Cotización Dólar Blue (venta): <strong class="dolar-valor">1 USD = $${dolarFormateado} ARS</strong> · actualizado ${horaActual}`;
+  }
+};
   configurarBotonFlotanteWhatsapp();
 
   // 2. Escuchar cambios en tiempo real en la colección 'productos' de Firestore
   escucharProductosEnTiempoReal();
 
   // 3. Escuchar la cotización del dólar desde Firestore (config/general)
+  /**
+ * Consulta el Dólar Blue (VENTA) desde dolarapi.com (gratuita, sin CORS, sin API key)
+ * Devuelve el valor de venta como número, o null si falla
+ */
+async function consultarDolarBlue() {
+  try {
+    const response = await fetch("https://dolarapi.com/v1/dolares/blue");
+    if (!response.ok) return null;
+    const data = await response.json();
+    return typeof data.venta === "number" ? data.venta : null;
+  } catch (error) {
+    console.warn("No se pudo consultar dolarapi.com:", error);
+    return null;
+  }
+}
   escucharCotizacionDolar();
     escucharTestimonios();
       escucharRatingGoogle();
@@ -100,25 +127,60 @@ function renderizarBannerDolar() {
 }
 
 /**
- * NUEVO: Escucha el documento config/general y actualiza el banner en tiempo real
+ * NUEVO: Integra cotización en vivo con estas prioridades:
+ * 1. Si el admin cargó un valor manual en Firestore → ese gana (override).
+ * 2. Si no hay override → usa el Dólar Blue en vivo desde dolarapi.com.
+ * 3. Si la API falla → usa el respaldo estático DOLAR_COTIZACION.
+ * Se refresca desde la API cada 5 minutos.
  */
 function escucharCotizacionDolar() {
+  let dolarAPI = null;        // último valor obtenido de la API
+  let dolarFirestore = null;  // último valor cargado por el admin
+
+  // Actualiza el banner respetando la prioridad
+  function actualizarDolar() {
+    if (typeof dolarFirestore === "number" && dolarFirestore > 0) {
+      dolarActual = dolarFirestore;
+    } else if (typeof dolarAPI === "number" && dolarAPI > 0) {
+      dolarActual = dolarAPI;
+    } else {
+      dolarActual = DOLAR_COTIZACION;
+    }
+    renderizarBannerDolar();
+  }
+
+  // --- Fuente 1: override manual desde Firestore ---
   try {
     onSnapshot(doc(db, "config", "general"), (snap) => {
       if (snap.exists()) {
         const data = snap.data();
         if (typeof data.dolar === "number" && data.dolar > 0) {
-          dolarActual = data.dolar;
-          renderizarBannerDolar();
+          dolarFirestore = data.dolar;
+        } else {
+          dolarFirestore = null; // si lo borran, vuelve a ganar la API
         }
+      } else {
+        dolarFirestore = null;
       }
-      // Si el documento no existe aún, se mantiene el valor de respaldo (DOLAR_COTIZACION)
+      actualizarDolar();
     }, (error) => {
       console.error("Error al leer la cotización desde Firestore:", error);
     });
   } catch (error) {
     console.error("Error al inicializar escucha de cotización:", error);
   }
+
+  // --- Fuente 2: API en vivo (dolarapi.com - VENTA) ---
+  async function refrescarDesdeAPI() {
+    const valor = await consultarDolarBlue();
+    if (valor) {
+      dolarAPI = valor;
+      actualizarDolar();
+    }
+  }
+
+  refrescarDesdeAPI();                                  // primer consulta inmediata
+  setInterval(refrescarDesdeAPI, 5 * 60 * 1000);        // refrescar cada 5 minutos
 }
 
 /**
