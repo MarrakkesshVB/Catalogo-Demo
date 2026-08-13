@@ -31,6 +31,7 @@ let todosLosProductos = []; // Guardará todos los productos obtenidos de la bas
 let categoriaSeleccionada = "todos"; // Categoría activa para el filtro ("todos", "nuevos", "seminuevos", "pedido")
 let textoBusqueda = ""; // Texto escrito en el buscador por el usuario
 let dolarActual = DOLAR_COTIZACION; // Cotización en vivo (se actualiza desde Firestore)
+let dolarEsEnVivo = false; // true cuando el valor mostrado viene de la API en vivo
 
 
 // ==========================================================================
@@ -93,13 +94,23 @@ document.addEventListener("DOMContentLoaded", () => {
  * Actualiza el banner superior con el valor actual del dólar (en vivo desde Firestore o API)
  */
 function renderizarBannerDolar() {
-  if (bannerDolarTexto) {
-    const dolarFormateado = dolarActual.toLocaleString("es-AR");
-    const horaActual = new Date().toLocaleTimeString("es-AR", {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-    bannerDolarTexto.innerHTML = `Cotización Dólar Blue (venta): <strong class="dolar-valor">1 USD = $${dolarFormateado} ARS</strong> · actualizado ${horaActual}`;
+  if (!bannerDolarTexto) return;
+
+  const dolarFormateado = dolarActual.toLocaleString("es-AR");
+
+  if (dolarEsEnVivo) {
+    // Modo EN VIVO: muestra la hora de actualización con a.m./p.m.
+    const ahora = new Date();
+    let horas = ahora.getHours();
+    const minutos = String(ahora.getMinutes()).padStart(2, "0");
+    const sufijo = horas >= 12 ? "p.m." : "a.m.";
+    horas = horas % 12 || 12; // convierte 0 → 12, 13 → 1, etc.
+    const horaFormateada = `${String(horas).padStart(2, "0")}:${minutos} ${sufijo}`;
+
+    bannerDolarTexto.innerHTML = `Cotización Dólar Blue: <strong class="dolar-valor">1 USD = $${dolarFormateado} ARS</strong> · Actualizado ${horaFormateada}`;
+  } else {
+    // Modo MANUAL: sin hora (no se está actualizando en tiempo real)
+    bannerDolarTexto.innerHTML = `Cotización Dólar Blue: <strong class="dolar-valor">1 USD = $${dolarFormateado} ARS</strong> | Pagos en USD y Pesos`;
   }
 }
 
@@ -134,10 +145,13 @@ function escucharCotizacionDolar() {
   function actualizarDolar() {
     if (typeof dolarFirestore === "number" && dolarFirestore > 0) {
       dolarActual = dolarFirestore;
+      dolarEsEnVivo = false; // override manual del panel
     } else if (typeof dolarAPI === "number" && dolarAPI > 0) {
       dolarActual = dolarAPI;
+      dolarEsEnVivo = true; // cotización en vivo
     } else {
       dolarActual = DOLAR_COTIZACION;
+      dolarEsEnVivo = false;
     }
     renderizarBannerDolar();
   }
