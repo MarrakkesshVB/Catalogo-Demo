@@ -49,40 +49,13 @@ const gridTestimonios = document.getElementById("grid-testimonios");
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
   // 1. Mostrar la cotización del dólar en el banner superior y configurar el botón flotante
-  /**
- * Actualiza el banner superior con el valor actual del dólar (en vivo desde Firestore o API)
- */
-function renderizarBannerDolar() {
-  if (bannerDolarTexto) {
-    const dolarFormateado = dolarActual.toLocaleString("es-AR");
-    const horaActual = new Date().toLocaleTimeString("es-AR", {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-    bannerDolarTexto.innerHTML = `Cotización Dólar Blue (venta): <strong class="dolar-valor">1 USD = $${dolarFormateado} ARS</strong> · actualizado ${horaActual}`;
-  }
-};
+  renderizarBannerDolar();
   configurarBotonFlotanteWhatsapp();
 
   // 2. Escuchar cambios en tiempo real en la colección 'productos' de Firestore
   escucharProductosEnTiempoReal();
 
   // 3. Escuchar la cotización del dólar desde Firestore (config/general)
-  /**
- * Consulta el Dólar Blue (VENTA) desde dolarapi.com (gratuita, sin CORS, sin API key)
- * Devuelve el valor de venta como número, o null si falla
- */
-async function consultarDolarBlue() {
-  try {
-    const response = await fetch("https://dolarapi.com/v1/dolares/blue");
-    if (!response.ok) return null;
-    const data = await response.json();
-    return typeof data.venta === "number" ? data.venta : null;
-  } catch (error) {
-    console.warn("No se pudo consultar dolarapi.com:", error);
-    return null;
-  }
-}
   escucharCotizacionDolar();
     escucharTestimonios();
       escucharRatingGoogle();
@@ -117,12 +90,32 @@ async function consultarDolarBlue() {
 // ==========================================================================
 
 /**
- * Actualiza el banner superior con el valor actual del dólar (en vivo desde Firestore)
+ * Actualiza el banner superior con el valor actual del dólar (en vivo desde Firestore o API)
  */
 function renderizarBannerDolar() {
   if (bannerDolarTexto) {
     const dolarFormateado = dolarActual.toLocaleString("es-AR");
-    bannerDolarTexto.innerHTML = `Cotización de referencia: <strong class="dolar-valor">1 USD = $${dolarFormateado} ARS</strong> | Pagos en USD y Pesos`;
+    const horaActual = new Date().toLocaleTimeString("es-AR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    bannerDolarTexto.innerHTML = `Cotización Dólar Blue (venta): <strong class="dolar-valor">1 USD = $${dolarFormateado} ARS</strong> · actualizado ${horaActual}`;
+  }
+}
+
+/**
+ * Consulta el Dólar Blue (VENTA) desde dolarapi.com (gratuita, sin CORS, sin API key)
+ * Devuelve el valor de venta como número, o null si falla
+ */
+async function consultarDolarBlue() {
+  try {
+    const response = await fetch("https://dolarapi.com/v1/dolares/blue");
+    if (!response.ok) return null;
+    const data = await response.json();
+    return typeof data.venta === "number" ? data.venta : null;
+  } catch (error) {
+    console.warn("No se pudo consultar dolarapi.com:", error);
+    return null;
   }
 }
 

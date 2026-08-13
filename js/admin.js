@@ -190,6 +190,20 @@ if (btnGuardarDolar) {
   });
 }
 
+// Botón: volver al dólar en vivo (borra el override manual)
+const btnDolarVivo = document.getElementById("btn-dolar-vivo");
+if (btnDolarVivo) {
+  btnDolarVivo.addEventListener("click", async () => {
+    ocultarMensajes();
+    try {
+      await setDoc(doc(db, "config", "general"), { dolar: 0 }, { merge: true });
+      mostrarExitoAdmin("Override borrado: la web ahora usa el Dólar Blue en vivo.");
+    } catch (error) {
+      mostrarErrorAdmin("No se pudo actualizar: " + error.message);
+    }
+  });
+}
+
 
 // ==========================================================================
 // CREACIÓN DE PRODUCTOS (FIRESTORE addDoc)
